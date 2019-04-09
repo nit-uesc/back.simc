@@ -1,4 +1,4 @@
-from main.models.Departments import Departments
+from app.models.Departments import Departments
 departments = [
         {
             'code': 'DCAA',
