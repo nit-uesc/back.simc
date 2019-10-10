@@ -1,3 +1,4 @@
+"""."""
 from database.migrations.departments import departments
 from database.migrations.researchers import researchers
 

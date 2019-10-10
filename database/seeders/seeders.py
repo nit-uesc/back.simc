@@ -1,2 +1,2 @@
 import database.seeders.departments
-import database.seeders.researchers
+# import database.seeders.researchers

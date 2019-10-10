@@ -2,8 +2,8 @@ import sys
 import os
 import csv
 
-from app.models.Researchers import Researchers
-from app.models.Departments import Departments
+from application.models.Researchers import Researchers
+from application.models.Departments import Departments
 
 dir = os.path.dirname(__file__)
 
