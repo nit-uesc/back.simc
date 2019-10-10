@@ -1,3 +1,3 @@
 """."""
-import config.dirs
-import config.elastic
+import application.config.dirs
+import application.config.elastic

@@ -1,0 +1,49 @@
+{
+	"settings": {
+		"number_of_shards": 1,    
+		"number_of_replicas": 0,
+		"analysis": {
+			"analyzer": {
+				"analyzer_portuguese": {
+					"tokenizer": "standard",
+					"filter": ["lowercase", "asciifolding"]
+				}
+			}
+		}
+	},
+	"mappings": {
+		"resume": {
+			"properties": {
+				"codigo": { "type": "text" },
+				"name": {
+					"type": "text",
+					"analyzer": "analyzer_portuguese"
+				},
+				"rank": {
+					"type": "text"
+				},
+				"department": {
+					"type": "text"
+				},
+				"abstract": {
+					"type": "text"
+				},
+				"graduation": {
+					"type": "text"
+				},
+				"masters": {
+					"type": "text"
+				},
+				"phd": {
+					"type": "text"
+				},
+				"posPhd": {
+					"type": "text"
+				},
+				"corpus": {
+					"type": "text"
+				}
+			}
+		}
+	}
+}

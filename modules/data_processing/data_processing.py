@@ -1,5 +1,6 @@
 """."""
-import csv
+import pandas as pd
+import multiprocessing as mp
 import os
 from elasticsearch import Elasticsearch, helpers
 
@@ -18,7 +19,7 @@ def generate_code(department):
 
     code = ''
     for part in parts:
-        code += part
+        code += part[0]
     return code
 
 
@@ -32,7 +33,7 @@ def process_database(department, document):
         department = Departments.get(Departments.code == generate_code(department))
         pass
 
-    Researchers.create(document=document, department=department)
+    return Researchers.create(document=document, department=department)
 
 
 def process_json(researcher):
@@ -82,28 +83,47 @@ def process_elastic(curriculum):
     return data
 
 
-try:
-    in_file = open('in.csv')
-    researchers = csv.reader(in_file, delimiter=',')
+def process_frame(researchers):
+    """."""
+    BULK = []
+    try:
+        for index, row in researchers.iterrows():
+            # if the document is on the database update
+            # if not create
+            department = row['department']
+            document = ''.join(''.join(row['document'].split('-')).split(' '))
+            # file_name = document + '.xml'
+            researcher = process_database(department, document)
+            file_name = researcher.document + '.xml'
+            if os.path.isfile('public/xml/' + file_name):
+                BULK.append(process_json(researcher))
+            else:
+                print(file_name)
 
-    line_count = 0
+    except Exception as e:
+        raise e
+    #
+    # for researcher in Researchers.all():
 
-    for researcher in researchers:
-        department = researcher[1]
-        document = ''.join(''.join(researcher[2].split('-')).split(' '))
-        file_name = document + '.xml'
-        process_database(department, document)
+    # """."""
+    return BULK
 
 
-except Exception as e:
-    raise e
+def process_data():
+    """."""
+    csv = pd.read_csv('in.csv', delimiter=',', chunksize=100)
+    pool = mp.Pool(4)
 
-BULK = []
-for researcher in Researchers.all():
-    file_name = researcher.document + '.xml'
-    if os.path.isfile('public/xml/' + file_name):
-        BULK.append(process_json(researcher))
-    else:
-        print(file_name)
+    funclist = []
+    for df in csv:
+        f = pool.apply_async(process_frame, [df])
+        funclist.append(f)
+    BULK = []
+    for f in funclist:
+        BULK += f.get(timeout=100)
 
-helpers.bulk(elastic, BULK)
+    helpers.bulk(elastic, BULK)
+    print('There are {} rows of data'.format(len(BULK)))
+
+
+process_data()

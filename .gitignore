@@ -1,6 +1,8 @@
 config.ini
 in.csv
 public/
+elasticsearch-7.4.0/
+
 
 
 # Created by https://www.gitignore.io/api/vim,macos,python
