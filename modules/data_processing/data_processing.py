@@ -3,6 +3,7 @@ import pandas as pd
 import multiprocessing as mp
 import os
 from elasticsearch import Elasticsearch, helpers
+from peewee import DoesNotExist
 
 from modules.data_processing.models.Curriculum import Curriculum
 from modules.data_processing.helpers.json import json
@@ -86,30 +87,23 @@ def process_elastic(curriculum):
 def process_frame(researchers):
     """."""
     BULK = []
-    try:
-        for index, row in researchers.iterrows():
-            # if the document is on the database update
-            # if not create
-            department = row['department']
-            document = ''.join(''.join(row['document'].split('-')).split(' '))
-            # file_name = document + '.xml'
+    for index, row in researchers.iterrows():
+        department = row['department']
+        document = ''.join(''.join(row['document'].split('-')).split(' '))
+        try:
+            researcher = Researchers.get(Researchers.document == document)
+            # here I should collect and update
+        except DoesNotExist:
             researcher = process_database(department, document)
-            file_name = researcher.document + '.xml'
-            if os.path.isfile('public/xml/' + file_name):
-                BULK.append(process_json(researcher))
-            else:
-                print(file_name)
-
-    except Exception as e:
-        raise e
-    #
-    # for researcher in Researchers.all():
-
-    # """."""
+        file_name = researcher.document + '.xml'
+        if os.path.isfile('public/xml/' + file_name):
+            BULK.append(process_json(researcher))
+        else:
+            print(file_name)
     return BULK
 
 
-def process_data():
+def process():
     """."""
     csv = pd.read_csv('in.csv', delimiter=',', chunksize=100)
     pool = mp.Pool(4)
@@ -126,4 +120,4 @@ def process_data():
     print('There are {} rows of data'.format(len(BULK)))
 
 
-process_data()
+process()

@@ -1,6 +1,6 @@
 """."""
 from database.migrations.migrations import call_migrations
-from database.seeders.seeders import seeders
+from database.seeders.seeders import call_seeders
 # import modules.data_processing.data_processing
 
 import json
@@ -12,8 +12,8 @@ from flask_jwt_extended import JWTManager, jwt_required
 from application.oauth.oauth import oauth
 from application.controllers.CurriculumController import CurriculumController
 
-call_migrations()
-call_seeders()
+# call_migrations()
+# call_seeders()
 
 app = Flask(__name__)
 app.config['JWT_SECRET_KEY'] = 'jwt-secret-string'
